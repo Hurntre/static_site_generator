@@ -2,21 +2,18 @@ import re
 from textnode import TextNode
 from enum import Enum
 
-class TextType(Enum):
-  TEXT = "Text"
-  BOLD = "Bold"
-  ITALIC = "Italic"
-  CODE = "Code"
-  LINK = "Link"
-  IMAGE = "Image"
+text_type_text = "text"
+text_type_bold = "bold"
+text_type_italic = "italic"
+text_type_code = "code"
+text_type_link = "link"
+text_type_image = "image"
 
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
-  if text_type not in TextType:
-    raise Exception("Invalid text type provided")
   new_nodes = []
   for old_node in old_nodes:
-    if old_node.text_type != TextType.TEXT:
+    if old_node.text_type != text_type_text:
       new_nodes.append(old_node)
       continue
 
@@ -28,7 +25,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
       if sections[i] == "":
         continue
       if i % 2 == 0:
-        split_nodes.append(TextNode(sections[i], TextType.TEXT))
+        split_nodes.append(TextNode(sections[i], text_type_text))
       else:
         split_nodes.append(TextNode(sections[i], text_type))
     new_nodes.extend(split_nodes)
@@ -47,7 +44,7 @@ def extract_markdown_links(text):
 def split_nodes_image(old_nodes):
   new_nodes = []
   for old_node in old_nodes:
-    if old_node.text_type != TextType.TEXT:
+    if old_node.text_type != text_type_text:
       new_nodes.append(old_node)
       continue
 
@@ -61,17 +58,17 @@ def split_nodes_image(old_nodes):
       if len(sections) != 2:
         raise ValueError("Invalid markdown, image section not closed")
       if sections[0] != "":
-        new_nodes.append(TextNode(sections[0], TextType.TEXT))
-      new_nodes.append(TextNode(image[0], TextType.IMAGE, image[1]))
+        new_nodes.append(TextNode(sections[0], text_type_text))
+      new_nodes.append(TextNode(image[0], text_type_image, image[1]))
       text = sections[1]
     if text != "":
-      new_nodes.append(TextNode(text, TextType.TEXT))
+      new_nodes.append(TextNode(text, text_type_text))
   return new_nodes
 
 def split_nodes_link(old_nodes):
   new_nodes = []
   for old_node in old_nodes:
-    if old_node.text_type != TextType.TEXT:
+    if old_node.text_type != text_type_text:
       new_nodes.append(old_node)
       continue
 
@@ -85,18 +82,18 @@ def split_nodes_link(old_nodes):
       if len(sections) != 2:
         raise ValueError("Invalid markdown, link section not closed")
       if sections[0] != "":
-        new_nodes.append(TextNode(sections[0], TextType.TEXT))
-      new_nodes.append(TextNode(link[0], TextType.LINK, link[1]))
+        new_nodes.append(TextNode(sections[0], text_type_text))
+      new_nodes.append(TextNode(link[0], text_type_link, link[1]))
       text = sections[1]
     if text != "":
-      new_nodes.append(TextNode(text, TextType.TEXT))
+      new_nodes.append(TextNode(text, text_type_text))
   return new_nodes
 
 def text_to_textnodes(text):
-  nodes = [TextNode(text, TextType.TEXT)]
-  nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
-  nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
-  nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+  nodes = [TextNode(text, text_type_text)]
+  nodes = split_nodes_delimiter(nodes, "**", text_type_bold)
+  nodes = split_nodes_delimiter(nodes, "*", text_type_italic)
+  nodes = split_nodes_delimiter(nodes, "`", text_type_code)
   nodes = split_nodes_image(nodes)
   nodes = split_nodes_link(nodes)
   return nodes
