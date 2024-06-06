@@ -1,6 +1,6 @@
 import unittest
 
-from block_markdown import markdown_to_blocks, block_to_block_type, BlockType, markdown_to_html_node
+from block_markdown import markdown_to_blocks, block_to_block_type, BlockType, markdown_to_html_node, extract_title
 
 class TestSplitDelimiter(unittest.TestCase):
   def test_markdown_to_blocks(self):
@@ -130,5 +130,17 @@ This is a paragraph of text. It has some **bold** and *italic* words inside of i
       "<div><h1>This is a heading</h1><p>This is a paragraph of text. It has some <b>bold</b> and <i>italic</i> words inside of it.</p><ul><li>This is a list item</li><li>This is another list item</li></ul></div>"
     )
 
+
+  def test_page_title_extraction(self):
+    markdown = """
+# This is a heading
+
+This is a paragraph of text. It has some **bold** and *italic* words inside of it.
+
+* This is a list item
+* This is another list item"""
+    block = extract_title(markdown)
+    self.assertEqual(block, "This is a heading")
+  
 if __name__ == "__main__":
   unittest.main()
